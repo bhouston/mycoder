@@ -20,6 +20,10 @@ const testConfig = {
 const mockResponse = {
   content: [
     {
+      type: "text",
+      text: "Processing your request...",
+    },
+    {
       type: "tool_use",
       name: "sequenceComplete",
       id: "1",
@@ -147,17 +151,70 @@ describe("toolAgent", () => {
     ).rejects.toThrow("Deliberate failure");
   });
 
-  // New tests for async system prompt
-  it("should handle async system prompt", async () => {
-    const result = await toolAgent(
-      "Test prompt",
-      [sequenceCompleteTool],
-      logger,
-      testConfig,
-    );
+  describe("streaming interface", () => {
+    it("should return a state object with streams", () => {
+      const state = toolAgent("Test prompt", [sequenceCompleteTool], logger, testConfig);
+      
+      expect(state.outMessages).toBeDefined();
+      expect(state.inMessages).toBeDefined();
+      expect(state.result).toBeUndefined(); // Initially undefined
+      expect(state.error).toBeUndefined();
+      expect(typeof state.input_tokens).toBe("number");
+      expect(typeof state.output_tokens).toBe("number");
+      expect(state.done).toBeInstanceOf(Promise);
+    });
 
-    expect(result.result).toBe("Test complete");
-    expect(result.tokens.input).toBe(10);
-    expect(result.tokens.output).toBe(10);
+    it("should stream messages and complete successfully", async () => {
+      const state = toolAgent("Test prompt", [sequenceCompleteTool], logger, testConfig);
+      const messages: any[] = [];
+
+      // Set up message collection
+      return new Promise<void>((resolve) => {
+        state.outMessages.on("data", (msg) => {
+          messages.push(msg);
+        });
+
+        state.outMessages.on("end", async () => {
+          const result = await state.done;
+
+          expect(messages).toContainEqual({ type: "user", content: "Test prompt" });
+          expect(messages).toContainEqual({ type: "assistant", content: "Processing your request..." });
+          expect(messages).toContainEqual({ 
+            type: "complete", 
+            content: {
+              result: "Test complete",
+              tokens: { input: 10, output: 10 },
+              interactions: 1
+            }
+          });
+
+          expect(result.result).toBe("Test complete");
+          expect(state.result).toBe("Test complete");
+          expect(state.error).toBeUndefined();
+          resolve();
+        });
+      });
+    });
+
+    it("should handle errors in streaming mode", async () => {
+      // Force an error by removing the API key
+      delete process.env.ANTHROPIC_API_KEY;
+
+      const state = toolAgent("Test prompt", [sequenceCompleteTool], logger, testConfig);
+      const messages: any[] = [];
+
+      return new Promise<void>((resolve) => {
+        state.outMessages.on("data", (msg) => {
+          messages.push(msg);
+        });
+
+        state.outMessages.on("end", async () => {
+          await expect(state.done).rejects.toThrow();
+          expect(messages.some(msg => msg.type === "error")).toBe(true);
+          expect(state.error).toBeDefined();
+          resolve();
+        });
+      });
+    });
   });
 });

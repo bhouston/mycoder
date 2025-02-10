@@ -52,8 +52,12 @@ export const subAgentTool: Tool<Parameters, ReturnType> = {
       (tool) => tool.name !== "userPrompt",
     );
 
-    const result = await toolAgent(prompt, tools, logger, subAgentConfig);
-    return result.result; // Return the result string directly
+    const state = toolAgent(prompt, tools, logger, subAgentConfig);
+    const result = await state.done;
+    if (!result.result) {
+      throw new Error("Sub-agent completed without a result");
+    }
+    return result.result;
   },
   logParameters: (input, { logger }) => {
     logger.info(`Delegating task "${input.description}"`);
