@@ -1,14 +1,13 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { Tool } from "../../core/types.js";
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
-import { subAgentStates } from "./subAgentState.js";
+import { subAgentStates, SubAgentState } from "./subAgentState.js";
 import { v4 as uuidv4 } from "uuid";
+import { toolAgent } from "../../core/toolAgent.js";
+import { getTools } from "../getTools.js";
 
 const parameterSchema = z.object({
-  prompt: z
-    .string()
-    .describe("The prompt/task for the sub-agent"),
+  prompt: z.string().describe("The prompt/task for the sub-agent"),
   description: z
     .string()
     .max(80)
@@ -17,7 +16,9 @@ const parameterSchema = z.object({
 
 const returnSchema = z
   .object({
-    instanceId: z.string().describe("Unique identifier for the sub-agent instance"),
+    instanceId: z
+      .string()
+      .describe("Unique identifier for the sub-agent instance"),
     response: z.string().describe("Initial response from the sub-agent"),
   })
   .describe("Result containing sub-agent instance ID and initial response");
@@ -27,65 +28,77 @@ type ReturnType = z.infer<typeof returnSchema>;
 
 export const subAgentStartTool: Tool<Parameters, ReturnType> = {
   name: "subAgentStart",
-  description: "Creates a sub-agent that has access to all tools to solve a specific task",
+  description:
+    "Creates a sub-agent that has access to all tools to solve a specific task",
   parameters: zodToJsonSchema(parameterSchema),
   returns: zodToJsonSchema(returnSchema),
 
-  execute: async (
-    params,
-    { logger },
-  ): Promise<ReturnType> => {
-    if (!process.env.ANTHROPIC_API_KEY) {
-      throw new Error("ANTHROPIC_API_KEY environment variable is not set");
-    }
-
-    const anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
-    });
-
-    // Create new instance ID
+  execute: async (params, { logger }): Promise<ReturnType> => {
     const instanceId = uuidv4();
     logger.verbose(`Creating new sub-agent with instance ID: ${instanceId}`);
 
-    // Initialize sub-agent state
-    subAgentStates.set(instanceId, {
-      prompt: params.prompt,
-      messages: [],
-      aborted: false,
-    });
+    try {
+      const tools = (await getTools()).filter(
+        (tool) => tool.name !== "userPrompt"
+      );
 
-    // Get initial response
-    logger.verbose(`Getting initial response from Anthropic API`);
-    const response = await anthropic.messages.create({
-      model: "claude-3-opus-20240229",
-      max_tokens: 4096,
-      messages: [
-        {
-          role: "user",
-          content: params.prompt,
-        },
-      ],
-    });
+      // Initialize toolAgent
+      const toolAgentState = toolAgent(params.prompt, tools, logger);
 
-    // Check if response content exists and has the expected structure
-    if (!response.content?.[0]?.text) {
-      throw new Error("Invalid response from Anthropic API");
+      // Initialize sub-agent state
+      const state: SubAgentState = {
+        prompt: params.prompt,
+        messages: [],
+        aborted: false,
+        toolAgentState,
+      };
+      subAgentStates.set(instanceId, state);
+
+      // Set up message handling
+      return new Promise((resolve, reject) => {
+        let messageReceived = false;
+
+        const messageHandler = (message: any) => {
+          if (message.type === "assistant" && !messageReceived) {
+            messageReceived = true;
+            const initialResponse = message.content;
+
+            // Store the interaction
+            state.messages.push(
+              { role: "user", content: params.prompt },
+              { role: "assistant", content: initialResponse }
+            );
+
+            resolve({
+              instanceId,
+              response: initialResponse,
+            });
+          }
+        };
+
+        const errorHandler = (error: Error) => {
+          state.aborted = true;
+          reject(error);
+        };
+
+        const endHandler = () => {
+          if (!messageReceived) {
+            state.aborted = true;
+            reject(
+              new Error("Stream ended without receiving assistant message")
+            );
+          }
+        };
+
+        toolAgentState.outMessages
+          .on("data", messageHandler)
+          .on("error", errorHandler)
+          .on("end", endHandler);
+      });
+    } catch (error) {
+      logger.error(`Failed to start sub-agent: ${error}`);
+      throw error;
     }
-
-    const responseText = response.content[0].text;
-    logger.verbose(`Received response from sub-agent`);
-
-    // Store the interaction
-    const state = subAgentStates.get(instanceId)!;
-    state.messages.push(
-      { role: "user", content: params.prompt },
-      { role: "assistant", content: responseText },
-    );
-
-    return {
-      instanceId,
-      response: responseText,
-    };
   },
 
   logParameters: (input, { logger }) => {
