@@ -52,7 +52,7 @@
     "jsdom": "^26.0.0",
     "ollama": "^0.5.14",
     "openai": "^4.87.3",
-    "playwright": "^1.50.1",
+    "playwright": "^1.55.1",
     "uuid": "^11",
     "zod": "^3.24.2",
     "zod-to-json-schema": "^3"

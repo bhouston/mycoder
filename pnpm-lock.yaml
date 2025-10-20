@@ -101,7 +101,7 @@ importers:
         version: 1.51.1
       '@vitest/browser':
         specifier: ^3.0.5
-        version: 3.0.9(@types/node@18.19.80)(playwright@1.51.1)(typescript@5.6.3)(vite@6.2.2(@types/node@18.19.80)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.0))(vitest@3.0.9)
+        version: 3.0.9(@types/node@18.19.80)(playwright@1.55.1)(typescript@5.6.3)(vite@6.2.2(@types/node@18.19.80)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.0))(vitest@3.0.9)
       chalk:
         specifier: ^5.4.1
         version: 5.4.1
@@ -118,8 +118,8 @@ importers:
         specifier: ^4.87.3
         version: 4.87.4(ws@8.18.1)(zod@3.24.2)
       playwright:
-        specifier: ^1.50.1
-        version: 1.51.1
+        specifier: ^1.55.1
+        version: 1.55.1
       uuid:
         specifier: ^11
         version: 11.1.0
@@ -903,6 +903,10 @@ packages:
 
   '@babel/runtime@7.26.10':
     resolution: {integrity: sha512-2WJMeRQPHKSPemqk/awGrAiuFfzBmOIPXKizAsVhWH9YJqLZ0H+HS4c8loHGgW6utJ3E/ejXQUsiGaQy2NZ9Fw==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/runtime@7.28.4':
+    resolution: {integrity: sha512-Q/N6JNWvIvPnLDvjlE1OUBLPQHH6l3CltCEsHIujp45zQUSSh8K+gHnaEX45yAT1nyngnINhvWtzN+Nb9D8RAQ==}
     engines: {node: '>=6.9.0'}
 
   '@babel/template@7.26.9':
@@ -5991,6 +5995,7 @@ packages:
   node-domexception@1.0.0:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
     engines: {node: '>=10.5.0'}
+    deprecated: Use your platform's native DOMException instead
 
   node-emoji@2.2.0:
     resolution: {integrity: sha512-Z3lTE9pLaJF47NyMhd4ww1yFTAP8YhYI8SleJiHzM46Fgpm5cnNzSl9XfzFNqbaz+VlJrIj3fXQ4DeN1Rjm6cw==}
@@ -6515,8 +6520,18 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
+  playwright-core@1.55.1:
+    resolution: {integrity: sha512-Z6Mh9mkwX+zxSlHqdr5AOcJnfp+xUWLCt9uKV18fhzA8eyxUd8NUWzAjxUh55RZKSYwDGX0cfaySdhZJGMoJ+w==}
+    engines: {node: '>=18'}
+    hasBin: true
+
   playwright@1.51.1:
     resolution: {integrity: sha512-kkx+MB2KQRkyxjYPc3a0wLZZoDczmppyGJIvQ43l+aZihkaVvmu/21kiyaHeHjiFxjxNNFnUncKmcGIyOojsaw==}
+    engines: {node: '>=18'}
+    hasBin: true
+
+  playwright@1.55.1:
+    resolution: {integrity: sha512-cJW4Xd/G3v5ovXtJJ52MAOclqeac9S/aGGgRzLabuF8TnIb6xHvMzKIa6JmrRzUkeXJgfL1MhukP0NK6l39h3A==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -7342,6 +7357,7 @@ packages:
 
   rspack-resolver@1.2.1:
     resolution: {integrity: sha512-yTaWGUvHOjcoyFMdVTdYt2nq2Hu8sw6ia3X9szloXFJlWLQZnQ9g/4TPhL3Bb3qN58Mkye8mFG7MCaKhya7fOw==}
+    deprecated: Please migrate to the brand new `@rspack/resolver` or `unrs-resolver` instead
 
   rtlcss@4.3.0:
     resolution: {integrity: sha512-FI+pHEn7Wc4NqKXMXFM+VAYKEj/mRIcW4h24YVwVtyjI+EqGrLc2Hx/Ny0lrZ21cBWU2goLy36eqMcNj3AQJig==}
@@ -9434,6 +9450,8 @@ snapshots:
     dependencies:
       regenerator-runtime: 0.14.1
 
+  '@babel/runtime@7.28.4': {}
+
   '@babel/template@7.26.9':
     dependencies:
       '@babel/code-frame': 7.26.2
@@ -11513,7 +11531,7 @@ snapshots:
 
   '@slorber/react-helmet-async@1.3.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
     dependencies:
-      '@babel/runtime': 7.26.10
+      '@babel/runtime': 7.28.4
       invariant: 2.2.4
       prop-types: 15.8.1
       react: 19.0.0
@@ -12003,7 +12021,7 @@ snapshots:
 
   '@visulima/path@1.3.5': {}
 
-  '@vitest/browser@3.0.9(@types/node@18.19.80)(playwright@1.51.1)(typescript@5.6.3)(vite@6.2.2(@types/node@18.19.80)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.0))(vitest@3.0.9)':
+  '@vitest/browser@3.0.9(@types/node@18.19.80)(playwright@1.55.1)(typescript@5.6.3)(vite@6.2.2(@types/node@18.19.80)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.0))(vitest@3.0.9)':
     dependencies:
       '@testing-library/dom': 10.4.0
       '@testing-library/user-event': 14.6.1(@testing-library/dom@10.4.0)
@@ -12016,7 +12034,7 @@ snapshots:
       vitest: 3.0.9(@types/debug@4.1.12)(@types/node@18.19.80)(@vitest/browser@3.0.9)(jiti@2.4.2)(jsdom@26.0.0)(msw@2.7.3(@types/node@18.19.80)(typescript@5.6.3))(terser@5.39.0)(yaml@2.7.0)
       ws: 8.18.1
     optionalDependencies:
-      playwright: 1.51.1
+      playwright: 1.55.1
     transitivePeerDependencies:
       - '@types/node'
       - bufferutil
@@ -12040,7 +12058,7 @@ snapshots:
       tinyrainbow: 2.0.0
       vitest: 3.0.9(@types/debug@4.1.12)(@types/node@18.19.80)(@vitest/browser@3.0.9)(jiti@2.4.2)(jsdom@26.0.0)(msw@2.7.3(@types/node@18.19.80)(typescript@5.6.3))(terser@5.39.0)(yaml@2.7.0)
     optionalDependencies:
-      '@vitest/browser': 3.0.9(@types/node@18.19.80)(playwright@1.51.1)(typescript@5.6.3)(vite@6.2.2(@types/node@18.19.80)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.0))(vitest@3.0.9)
+      '@vitest/browser': 3.0.9(@types/node@18.19.80)(playwright@1.55.1)(typescript@5.6.3)(vite@6.2.2(@types/node@18.19.80)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.0))(vitest@3.0.9)
     transitivePeerDependencies:
       - supports-color
 
@@ -14525,7 +14543,7 @@ snapshots:
 
   history@4.10.1:
     dependencies:
-      '@babel/runtime': 7.26.10
+      '@babel/runtime': 7.28.4
       loose-envify: 1.4.0
       resolve-pathname: 3.0.0
       tiny-invariant: 1.3.3
@@ -16443,9 +16461,17 @@ snapshots:
 
   playwright-core@1.51.1: {}
 
+  playwright-core@1.55.1: {}
+
   playwright@1.51.1:
     dependencies:
       playwright-core: 1.51.1
+    optionalDependencies:
+      fsevents: 2.3.2
+
+  playwright@1.55.1:
+    dependencies:
+      playwright-core: 1.55.1
     optionalDependencies:
       fsevents: 2.3.2
 
@@ -17210,7 +17236,7 @@ snapshots:
 
   regenerator-transform@0.15.2:
     dependencies:
-      '@babel/runtime': 7.26.10
+      '@babel/runtime': 7.28.4
 
   regexp.prototype.flags@1.5.4:
     dependencies:
@@ -18488,7 +18514,7 @@ snapshots:
     optionalDependencies:
       '@types/debug': 4.1.12
       '@types/node': 18.19.80
-      '@vitest/browser': 3.0.9(@types/node@18.19.80)(playwright@1.51.1)(typescript@5.6.3)(vite@6.2.2(@types/node@18.19.80)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.0))(vitest@3.0.9)
+      '@vitest/browser': 3.0.9(@types/node@18.19.80)(playwright@1.55.1)(typescript@5.6.3)(vite@6.2.2(@types/node@18.19.80)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.0))(vitest@3.0.9)
       jsdom: 26.0.0
     transitivePeerDependencies:
       - jiti
